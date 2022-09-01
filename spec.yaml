@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vue-k8s-config
+  labels:
+    app: vue-k8s-config
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vue-k8s-config
+  template:
+    metadata:
+      labels:
+        app: vue-k8s-config
+    spec:
+      containers:
+        - name: vue-k8s-config
+          image: vue-k8s-config
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Never
+          volumeMounts:
+          - name: config-volume
+            mountPath: /usr/share/nginx/html/env.js
+            subPath: env.js
+      volumes:
+        - name: config-volume
+          configMap:
+            name: vue-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: vue-config
+data:
+    env.js: |
+        () => window.env = {
+          source: 'k8s'
+        }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vue-k8s-config
+spec:
+  selector:
+    app: vue-k8s-config
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30019
+---

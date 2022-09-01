@@ -1,0 +1,6 @@
+releases:
+  - name: vue-k8s-config
+    chart: ./packages/app
+    namespace: default
+    values:
+      - ./values/vue-k8s-config.yaml
